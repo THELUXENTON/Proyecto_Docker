@@ -1,0 +1,13 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    host: '0.0.0.0', // <--- ESTO ES VITAL PARA DOCKER
+    port: 5173,
+    watch: {
+      usePolling: true // Ayuda a que los cambios se reflejen en Windows/Mac
+    }
+  }
+})

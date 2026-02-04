@@ -1,0 +1,21 @@
+/* index.css */
+:root {
+  font-family: 'Poppins', 'Roboto', sans-serif;
+  background-color: #f4f7f6; /* Gris muy claro estilo app moderna */
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  display: block; /* Quitamos el flex que centra todo */
+  min-height: 100vh;
+  width: 100%;
+}
+
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left; /* Alineación normal */
+}

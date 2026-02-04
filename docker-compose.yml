@@ -1,0 +1,83 @@
+# Se define la versión de Docker Compose utilizada
+version: '3.8'
+
+services:
+  # 1. SERVICIO DE PERSISTENCIA (Base de Datos)
+  db:
+    # Se utiliza la imagen oficial de PostgreSQL en la versión 15
+    image: postgres:15
+    # Se asigna un nombre fijo al contenedor de la base de datos
+    container_name: cine_db
+    # Se configuran las variables de entorno necesarias para PostgreSQL
+    environment:
+      - POSTGRES_DB=cine_db
+      - POSTGRES_USER=cine_user
+      - POSTGRES_PASSWORD=cine_password
+    # Se define un volumen para persistir los datos de la base de datos
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Se conecta el servicio a la red definida para la arquitectura distribuida
+    networks:
+      - red_distribuida
+
+  # 2. SERVICIO BACKEND (Django)
+  backend:
+    # Se construye la imagen del backend a partir del directorio correspondiente
+    build: ./backend
+    # Se asigna un nombre fijo al contenedor del backend
+    container_name: cine_backend
+    # Se ejecutan las migraciones y se inicia el servidor de desarrollo de Django
+    command: >
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    # Se montan volúmenes para permitir cambios en vivo y persistir archivos multimedia
+    volumes:
+      - ./backend:/app
+      - media_volume:/app/media
+    # Se expone el puerto 8000 para acceder al backend desde el host
+    ports:
+      - "8000:8000"
+    # Se indica que este servicio depende del servicio de base de datos
+    depends_on:
+      - db
+    # Se configuran variables de entorno para la conexión a la base de datos y el modo debug
+    environment:
+      - DATABASE_URL=postgres://cine_user:cine_password@db:5432/cine_db
+      - DEBUG=True
+    # Se conecta el servicio a la red distribuida
+    networks:
+      - red_distribuida
+
+  # 3. SERVICIO FRONTEND (React)
+  frontend:
+    # Se construye la imagen del frontend a partir del directorio correspondiente
+    build: ./frontend
+    # Se asigna un nombre fijo al contenedor del frontend
+    container_name: cine_frontend
+    # Se montan volúmenes para desarrollo en caliente y evitar conflictos de dependencias
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    # Se expone el puerto 5173 para acceder a la aplicación frontend
+    ports:
+      - "5173:5173"
+    # Se define la URL del backend para el consumo de la API
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    # Se indica que el frontend depende del backend
+    depends_on:
+      - backend
+    # Se conecta el servicio a la red distribuida
+    networks:
+      - red_distribuida
+
+# Se definen los volúmenes utilizados por los servicios
+volumes:
+  postgres_data:
+  media_volume:
+
+# Se define la red utilizada para la comunicación entre contenedores
+networks:
+  red_distribuida:
+    driver: bridge
