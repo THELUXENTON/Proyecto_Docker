@@ -15,6 +15,9 @@ El proyecto ha sido diseñado para desacoplar completamente la lógica de negoci
 | **Base de Datos** | PostgreSQL 15 | `5432` (Interno) | Persistencia de datos relacional. |
 
 ---
+Link Presentacion:
+https://gamma.app/docs/INFORME-TECNICO-Proyecto-Final-7b4a0fyvr78ezwj?mode=doc
+
 
 ## 🚀 Instrucciones de Despliegue
 
